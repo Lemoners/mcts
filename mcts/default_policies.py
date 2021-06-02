@@ -7,8 +7,11 @@ def immediate_reward(state_node):
     :param state_node:
     :return:
     """
-    return state_node.state.reward(state_node.parent.parent.state,
+    if state_node.parent != None:
+        return state_node.state.reward(state_node.parent.parent.state,
                                    state_node.parent.action)
+    else:
+        return state_node.state.reward(None, None)
 
 
 class RandomKStepRollOut(object):
@@ -44,15 +47,29 @@ def random_terminal_roll_out(state_node):
 
 
 def _roll_out(state_node, stopping_criterion):
-    reward = 0
     state = state_node.state
-    parent = state_node.parent.parent.state
-    action = state_node.parent.action
+    if state_node.parent is not None:
+        parent = state_node.parent.parent.state
+        action = state_node.parent.action
+    else:
+        parent = None
+        action = None
+
+    reward = 0
     while not stopping_criterion(state):
-        reward += state.reward(parent, action)
-
-        action = random.choice(state_node.state.actions)
+        if parent != None and action != None:     
+            reward += state.reward(parent, action)
+        
+        # action = random.choice(state_node.state.actions)
         parent = state
-        state = parent.perform(action)
+        __actions = state_node.state.actions.copy()
+        random.shuffle(__actions)
+        for a in (__actions):
+            new_state = parent.perform(a)
+            action = a
+            if not new_state.is_terminal():
+                break
+        state = new_state   
 
+    reward += state.reward(parent, action)
     return reward

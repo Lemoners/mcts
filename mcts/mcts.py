@@ -30,7 +30,7 @@ class MCTS(object):
             node = _get_next_node(root, self.tree_policy)
             node.reward = self.default_policy(node)
             self.backup(node)
-
+        # print([(x.q, x.n) for x in root.children.values()])
         return utils.rand_max(root.children.values(), key=lambda x: x.q).action
 
 

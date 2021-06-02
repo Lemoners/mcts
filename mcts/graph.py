@@ -15,26 +15,16 @@ class ActionNode(Node):
         self.action = action
         self.n = 0
 
-    def sample_state(self, real_world=False):
+    def sample_state(self):
         """
         Samples a state from this action and adds it to the tree if the
         state never occurred before.
 
-        :param real_world: If planning in belief states are used, this can
-        be set to True if a real world action is taken. The belief is than
-        used from the real world action instead from the belief state actions.
-        :return: The state node, which was sampled.
         """
-        if real_world:
-            state = self.parent.state.real_world_perform(self.action)
-        else:
-            state = self.parent.state.perform(self.action)
+        state = self.parent.state.perform(self.action)
 
         if state not in self.children:
             self.children[state] = StateNode(self, state)
-
-        if real_world:
-            self.children[state].state.belief = state.belief
 
         return self.children[state]
 
